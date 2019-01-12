@@ -7,24 +7,28 @@ import java.net.ServerSocket;
 import java.util.LinkedList;
 
 @Component
-public class TcpServer implements Server  {
+public class TcpServer implements Server {
     public static LinkedList<ServerThread> serverList = new LinkedList<>();
 
     public void start(int port) {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+
+        new Thread(() -> {
+            try (ServerSocket serverSocket = new ServerSocket(port)) {
 
 
-            while (true) {
+                while (true) {
 
-                System.out.println("New client connected");
+                    System.out.println("New client connected");
 
-                serverList.add(new ServerThread(serverSocket.accept()));
+                    serverList.add(new ServerThread(serverSocket.accept()));
+                }
+
+            } catch (IOException ex) {
+                System.out.println("Server exception: " + ex.getMessage());
+                ex.printStackTrace();
             }
 
-        } catch (IOException ex) {
-            System.out.println("Server exception: " + ex.getMessage());
-            ex.printStackTrace();
-        }
+    }).start();
     }
 
 
