@@ -1,23 +1,35 @@
 package com.nice2h8u.tcpclientserver.server;
 
-import com.nice2h8u.tcpclientserver.entity.Dictionary;
-import org.json.JSONObject;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonMethod;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Controller;
 
 import java.io.*;
 import java.net.Socket;
 
+//@Component
 public class ServerThread extends Thread {
+
+
+    //ResponseGenerator responseGenerator;
+    private ObjectMapper mapper; //jasckson
     private Socket socket;
     private BufferedReader in; // поток чтения из сокета
-    private BufferedWriter out; // поток записи в сокет
-    private JSONObject json;
+    private PrintWriter out; // поток записи в сокет
+
 
     public ServerThread(Socket socket) throws IOException {
         this.socket = socket;
+        //responseGenerator = new ResponseGenerator();
+        mapper = new ObjectMapper();
+        mapper.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);
 
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        start(); // вызываем run()
+        out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+        start(); //  run()
     }
 
     public void run() {
@@ -25,44 +37,42 @@ public class ServerThread extends Thread {
         try {
 
             while (true) {
-                word =in.readLine();
-                if (word!=null)
-                    json = new JSONObject(word);
-                else json = null;
+                word = in.readLine();
+
+                if (word != null) {
 
 
-                    if (json != null) {
 
-                        if (json.get("word").equals("stop")) {
-                            break;
-                        }
-                        System.out.println(json.get("word"));
-                        for (ServerThread vr : TcpServer.serverList) {
-                            vr.send(json.toString()); // отослать принятое сообщение с
-                            // привязанного клиента всем остальным включая его
-                        }
+
+                    for (ServerThread vr : TcpServer.serverList) {
+                        //vr.send(responseGenerator.receiveAndSend(word)); // отослать принятое сообщение с
+                        // привязанного клиента всем остальным включая его
                     }
+                }
             }
         } catch (IOException e) {
         }
 
     }
 
-    private void send(String msg) {
-        try {
-            out.write(msg + "\n");
+
+
+    private void send(String message) {
+
+
+
+
+            System.out.println(message);
+
+
+            out.write(message + "\n");
             out.flush();
-        } catch (IOException ignored) {
-        }
+
+
     }
 
-    private Dictionary deserialiazing(JSONObject json){
-        Long id = Long.parseLong( json.get("id").toString());
-        String word = json.get("word").toString();
-        String description = json.get("description").toString();
 
-        return new Dictionary(id,word,description);
-    }
+
 
 
 }

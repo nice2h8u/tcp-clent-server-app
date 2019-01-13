@@ -2,23 +2,24 @@ package com.nice2h8u.tcpclientserver.service;
 
 import com.nice2h8u.tcpclientserver.entity.Dictionary;
 import com.nice2h8u.tcpclientserver.repository.DictionaryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class DictionaryServiceImpl implements DictionaryService {
+public class DictionaryServiceImpl  {
 
+    @Autowired
     DictionaryRepository dictionaryRepository;
 
-    public DictionaryServiceImpl(DictionaryRepository dictionaryRepository) {
-        this.dictionaryRepository = dictionaryRepository;
+
+
+    public Dictionary getDescriptionByWord(String word) {
+
+        dictionaryRepository.findAll().forEach(i-> System.out.println(i.getWord()));
+
+        return dictionaryRepository.findByWord(word);
     }
 
-    public String getDescriptionByWord(String word) {
-
-        String description = dictionaryRepository.findByWord(word).getDescription();
-        return description;
-    }
-@Override
     public Iterable<Dictionary> getWordsByMask(String mask) {
         return null;
     }
