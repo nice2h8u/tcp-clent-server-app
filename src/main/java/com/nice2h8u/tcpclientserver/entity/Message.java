@@ -6,6 +6,7 @@ import java.util.List;
 public class Message {
     String typeOfMessage;
 
+
     List<Dictionary> dictionaries = new ArrayList<>();
 
     public Message() {

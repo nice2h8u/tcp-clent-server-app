@@ -1,16 +1,14 @@
 package com.nice2h8u.tcpclientserver.entity;
 
-import lombok.Data;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Lob;
 
 
-import javax.persistence.*;
-
-@Data
 @Entity
 public class Dictionary {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String word;
@@ -23,7 +21,32 @@ public class Dictionary {
     }
 
     public Dictionary(Long id, String word, String description) {
+        this.id = id;
         this.word = word;
+        this.description = description;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getWord() {
+        return word;
+    }
+
+    public void setWord(String word) {
+        this.word = word;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
         this.description = description;
     }
 }

@@ -1,19 +1,19 @@
 package com.nice2h8u.tcpclientserver.server;
 
+import com.nice2h8u.tcpclientserver.helpClasses.BeanUtil;
+import com.nice2h8u.tcpclientserver.helpClasses.ResponseGenerator;
 import org.codehaus.jackson.annotate.JsonAutoDetect;
 import org.codehaus.jackson.annotate.JsonMethod;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
 
 import java.io.*;
 import java.net.Socket;
 
-//@Component
+
 public class ServerThread extends Thread {
 
 
+    private ResponseGenerator responseGenerator;
     //ResponseGenerator responseGenerator;
     private ObjectMapper mapper; //jasckson
     private Socket socket;
@@ -24,6 +24,7 @@ public class ServerThread extends Thread {
     public ServerThread(Socket socket) throws IOException {
         this.socket = socket;
         //responseGenerator = new ResponseGenerator();
+        responseGenerator = BeanUtil.getBean(ResponseGenerator.class);
         mapper = new ObjectMapper();
         mapper.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);
 
@@ -45,7 +46,7 @@ public class ServerThread extends Thread {
 
 
                     for (ServerThread vr : TcpServer.serverList) {
-                        //vr.send(responseGenerator.receiveAndSend(word)); // отослать принятое сообщение с
+                        vr.send(responseGenerator.receiveAndSend(word)); // отослать принятое сообщение с
                         // привязанного клиента всем остальным включая его
                     }
                 }

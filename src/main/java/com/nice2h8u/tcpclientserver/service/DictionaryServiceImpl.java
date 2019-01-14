@@ -2,34 +2,67 @@ package com.nice2h8u.tcpclientserver.service;
 
 import com.nice2h8u.tcpclientserver.entity.Dictionary;
 import com.nice2h8u.tcpclientserver.repository.DictionaryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
-public class DictionaryServiceImpl  {
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-    @Autowired
+@Service
+public class DictionaryServiceImpl implements DictionaryService {
+
+
     DictionaryRepository dictionaryRepository;
 
+    ArrayList<Dictionary> dictionaries;
+    Dictionary dictionary;
+    Pattern pattern;
+    Matcher matcher;
 
+    public DictionaryServiceImpl(DictionaryRepository dictionaryRepository) {
+        this.dictionaryRepository = dictionaryRepository;
+    }
 
     public Dictionary getDescriptionByWord(String word) {
 
-        dictionaryRepository.findAll().forEach(i-> System.out.println(i.getWord()));
 
         return dictionaryRepository.findByWord(word);
     }
 
-    public Iterable<Dictionary> getWordsByMask(String mask) {
-        return null;
+    public ArrayList<Dictionary> getWordsByMask(String mask) {
+
+        pattern = Pattern.compile(mask);
+        dictionaries = new ArrayList<>();
+
+
+        dictionaryRepository.findAll().forEach(dic-> {
+
+            matcher = pattern.matcher(dic.getWord());
+
+            if(matcher.matches())
+            {
+                dictionaries.add(dic);
+            }
+
+
+        });
+
+
+        return dictionaries;
     }
 
     public void addNewDictionary(Dictionary dictionary) {
-        dictionaryRepository.save(dictionary);
+
+        dictionaries = new ArrayList<>();
+
+        dictionaryRepository.findAll().iterator().forEachRemaining(dictionaries::add);
+
+        dictionaryRepository.save(new Dictionary
+                (dictionaries.get(dictionaries.size() - 1).getId() + 1, dictionary.getWord(), dictionary.getDescription()));
     }
 
     public void changeDictionary(String word, String newWord, String newDescription) {
-        Dictionary dictionary = dictionaryRepository.findByWord(word);
+        dictionary = dictionaryRepository.findByWord(word);
         dictionary.setWord(newWord);
         dictionary.setDescription(newDescription);
     }

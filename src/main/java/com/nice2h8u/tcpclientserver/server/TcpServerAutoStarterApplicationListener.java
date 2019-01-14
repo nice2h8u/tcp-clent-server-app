@@ -1,16 +1,13 @@
-package com.nice2h8u.tcpclientserver;
+package com.nice2h8u.tcpclientserver.server;
 
 
-import com.nice2h8u.tcpclientserver.server.ResponseGenerator;
+import com.nice2h8u.tcpclientserver.helpClasses.ResponseGenerator;
 import com.nice2h8u.tcpclientserver.server.Server;
-import com.nice2h8u.tcpclientserver.service.DictionaryService;
 import com.nice2h8u.tcpclientserver.service.DictionaryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
 
 @Component
 public class TcpServerAutoStarterApplicationListener implements ApplicationListener<ContextRefreshedEvent> {
@@ -30,14 +27,6 @@ public class TcpServerAutoStarterApplicationListener implements ApplicationListe
 
         server.start(20205);
 
-
-        // System.out.println(dictionaryService.getDescriptionByWord("Java").getDescription());
-
-        System.out.println(
-                responseGenerator.test("Java"));
-
-
-        //("{\"typeOfMessage\":\"getDescription\",\"dictionaries\":[{\"id\":5,\"word\":\"Java\",\"description\":\"circle\"}]}")
 
 
     }
