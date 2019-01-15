@@ -40,41 +40,85 @@ public class ResponseGenerator {
     public String generateMessageToSend(Message incomingMessage) throws IOException {
         dictionaries = new ArrayList<>();
         Dictionary dictionary;
+        Dictionary ifExistDictionary;
         Message result = null;
 
         switch (incomingMessage.getTypeOfMessage()) {
+
+
+            case "getAllDictionaries":
+                dictionaries = dictionaryService.getAllDictionaries();
+                if (dictionaries.size() != 0)
+                    result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+                else result = new Message("Error. No words in server db", dictionaries);
+                break;
+
             case "getDescription":
 
                 dictionary = dictionaryService.getDescriptionByWord(incomingMessage.getDictionaries().get(0).getWord());
-                dictionaries.add(dictionary);
-                result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+                //if word exist
+                if (dictionary != null) {
+                    dictionaries.add(dictionary);
+                    result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+                } else result = new Message("No such word in db", dictionaries);
                 break;
+
             case "addNewDictionary":
 
                 dictionary = incomingMessage.getDictionaries().get(0);
-                dictionaryService.addNewDictionary(dictionary);
 
-                result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+                ifExistDictionary = dictionaryService.getDescriptionByWord(dictionary.getWord());
+                //if word exist
+                if (ifExistDictionary == null) {
+                    dictionaryService.addNewDictionary(dictionary);
 
+                    result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+                } else
+                    result = new Message("This word is already exist in db", dictionaries);
                 break;
+
             case "changeDictionary":
                 dictionary = incomingMessage.getDictionaries().get(0);
 
-                dictionaryService.changeDictionary(dictionary.getWord(), incomingMessage.getDictionaries().get(1).getWord(),
-                        incomingMessage.getDictionaries().get(0).getDescription());
-                result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
-                break;
-            case "deleteWord":
-                dictionary = incomingMessage.getDictionaries().get(0);
+                ifExistDictionary = dictionaryService.getDescriptionByWord(dictionary.getWord());
 
-                dictionaryService.deleteWord(dictionary.getWord());
-                result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+                if (ifExistDictionary != null &&
+                   dictionaryService.getDescriptionByWord(incomingMessage.getDictionaries().get(1).getWord())==null ) {
+
+                    dictionaryService.changeDictionary(dictionary.getWord(), incomingMessage.getDictionaries().get(1).getWord(),
+                            incomingMessage.getDictionaries().get(1).getDescription());
+                    result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+
+                } else result = new Message("No such word in db", dictionaries);
+
+                break;
+
+            case "deleteDictionary":
+
+                dictionary = incomingMessage.getDictionaries().get(0);
+                ifExistDictionary = dictionaryService.getDescriptionByWord(dictionary.getWord());
+
+                if (ifExistDictionary != null) {
+
+                    dictionaryService.deleteWord(dictionary.getWord());
+                    result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+                } else result = new Message("No such word in db", dictionaries);
+
+                break;
             case "getWordsByMask":
                 dictionary = incomingMessage.getDictionaries().get(0);
 
-                 dictionaries = dictionaryService.getWordsByMask(dictionary.getWord());
-                 if (dictionaries.size()!=0)
-                     result = new Message(incomingMessage.getTypeOfMessage(),dictionaries);
+                dictionaries = dictionaryService.getWordsByMask(dictionary.getWord());
+                if (dictionaries.size() != 0)
+                    result = new Message(incomingMessage.getTypeOfMessage(), dictionaries);
+                else result = new Message("Error. No words in server db", dictionaries);
+                break;
+
+            case "exit":
+                return "exit";
+
+
+
 
         }
 
@@ -86,10 +130,7 @@ public class ResponseGenerator {
         Message message = null;
         try {
             message = mapper.readValue(json, Message.class);
-        } catch (JsonParseException e) {
-            e.printStackTrace();
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

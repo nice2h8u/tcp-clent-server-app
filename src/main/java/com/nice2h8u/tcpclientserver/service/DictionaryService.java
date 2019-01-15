@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public interface DictionaryService {
 
+    ArrayList<Dictionary> getAllDictionaries();
     Dictionary getDescriptionByWord(String word);
      ArrayList<Dictionary> getWordsByMask(String mask) ;
      void addNewDictionary(Dictionary dictionary);

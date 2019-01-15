@@ -14,58 +14,69 @@ public class ServerThread extends Thread {
 
 
     private ResponseGenerator responseGenerator;
-    //ResponseGenerator responseGenerator;
+
     private ObjectMapper mapper; //jasckson
     private Socket socket;
-    private BufferedReader in; // поток чтения из сокета
-    private PrintWriter out; // поток записи в сокет
 
 
-    public ServerThread(Socket socket) throws IOException {
+
+    public ServerThread(Socket socket)  {
         this.socket = socket;
-        //responseGenerator = new ResponseGenerator();
+        System.out.println("New client connected");
         responseGenerator = BeanUtil.getBean(ResponseGenerator.class);
         mapper = new ObjectMapper();
         mapper.setVisibility(JsonMethod.FIELD, JsonAutoDetect.Visibility.ANY);
 
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+
         start(); //  run()
     }
 
     public void run() {
         String word;
-        try {
+        try(BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);) {
 
             while (true) {
                 word = in.readLine();
 
                 if (word != null) {
-
-
-
-
-                    for (ServerThread vr : TcpServer.serverList) {
-                        vr.send(responseGenerator.receiveAndSend(word)); // отослать принятое сообщение с
-                        // привязанного клиента всем остальным включая его
+                    //
+                    System.out.println("Server get a request");
+                            String sendingJson = responseGenerator.receiveAndSend(word);
+                            if (!sendingJson.equals("exit"))
+                                send(sendingJson,out);
+                            else break;
                     }
                 }
-            }
-        } catch (IOException e) {
+
+
+            System.out.println("Client disconnected");
+        }  catch (IOException e) {
         }
 
+
+        finally {
+            if (socket != null && !socket.isClosed()) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
     }
 
 
 
-    private void send(String message) {
+    private void send(String message, PrintWriter out) {
 
 
 
 
-            System.out.println(message);
 
 
+        System.out.println("Server return a response");
             out.write(message + "\n");
             out.flush();
 

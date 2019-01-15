@@ -18,7 +18,7 @@ public class TcpServer implements Server {
 
                 while (true) {
 
-                    System.out.println("New client connected");
+
 
                     serverList.add(new ServerThread(serverSocket.accept()));
                 }

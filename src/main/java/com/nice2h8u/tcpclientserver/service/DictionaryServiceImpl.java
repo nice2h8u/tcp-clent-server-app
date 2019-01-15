@@ -23,6 +23,14 @@ public class DictionaryServiceImpl implements DictionaryService {
         this.dictionaryRepository = dictionaryRepository;
     }
 
+    public ArrayList<Dictionary> getAllDictionaries() {
+        dictionaries = new ArrayList<>();
+
+        dictionaryRepository.findAll().forEach(dictionaries::add);
+
+        return dictionaries;
+    }
+
     public Dictionary getDescriptionByWord(String word) {
 
 
@@ -35,12 +43,11 @@ public class DictionaryServiceImpl implements DictionaryService {
         dictionaries = new ArrayList<>();
 
 
-        dictionaryRepository.findAll().forEach(dic-> {
+        dictionaryRepository.findAll().forEach(dic -> {
 
             matcher = pattern.matcher(dic.getWord());
 
-            if(matcher.matches())
-            {
+            if (matcher.find()) {
                 dictionaries.add(dic);
             }
 
@@ -63,8 +70,12 @@ public class DictionaryServiceImpl implements DictionaryService {
 
     public void changeDictionary(String word, String newWord, String newDescription) {
         dictionary = dictionaryRepository.findByWord(word);
-        dictionary.setWord(newWord);
-        dictionary.setDescription(newDescription);
+        if (!newWord.equals(""))
+            dictionary.setWord(newWord);
+        if (!newDescription.equals(""))
+            dictionary.setDescription(newDescription);
+        dictionaryRepository.save(dictionary);
+
     }
 
     public void deleteWord(String word) {

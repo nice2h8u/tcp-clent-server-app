@@ -25,11 +25,12 @@ public class DictionaryRepositoryTest {
 
     @Test
     public void findByWord() {
-        Dictionary tempDictionary = new Dictionary(1L,"Java","the main island of Indonesia");
+        String word = "Sing";
+        Dictionary tempDictionary = new Dictionary(5L,word,"words+music");
         entityManager.persist(tempDictionary);
         entityManager.flush();
 
-        Dictionary dictionary = dictionaryRepository.findByWord("Java");
+        Dictionary dictionary = dictionaryRepository.findByWord(word);
 
         assertEquals(dictionary.getDescription(),
                 tempDictionary.getDescription());
